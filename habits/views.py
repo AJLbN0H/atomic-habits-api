@@ -1,3 +1,48 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, RetrieveAPIView
 
-# Create your views here.
+from habits.models import Habit
+from habits.paginations import CustomPagination
+from habits.serializers import HabitsSerializer
+
+
+class UserHabitsListAPIView(ListAPIView):
+    """Generic вывода списка личных привычек пользователя."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()
+    pagination_class = CustomPagination
+
+
+class PublicHabitsListAPIView(ListAPIView):
+    """Generic вывода списка публичных привычек пользователей."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()
+
+
+class HabitsCreateAPIView(CreateAPIView):
+    """Generic создания привычки."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()
+
+
+class HabitsUpdateAPIView(UpdateAPIView):
+    """Generic редактирования привычки."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()
+
+
+class HabitsRetrieveAPIView(RetrieveAPIView):
+    """Generic детальной информации о привычке."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()
+
+
+class HabitsDestroyAPIView(DestroyAPIView):
+    """Generic удаленияпривычек пользователя."""
+
+    serializer_class = HabitsSerializer
+    queryset = Habit.objects.all()

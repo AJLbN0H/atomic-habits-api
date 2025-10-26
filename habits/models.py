@@ -30,8 +30,9 @@ class Habit(models.Model):
         help_text="привычка, которую можно привязать к выполнению полезной привычки",
         default=False,
     )
-    associated_habit = models.CharField(
-        max_length=500,
+    associated_habit = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
         verbose_name="Связанная привычка",
         help_text="укажите приятную привычку",
         blank=True,

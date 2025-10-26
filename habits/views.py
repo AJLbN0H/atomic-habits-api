@@ -26,6 +26,10 @@ class HabitsCreateAPIView(CreateAPIView):
     serializer_class = HabitsSerializer
     queryset = Habit.objects.all()
 
+    def perform_create(self, serializer):
+        """Метод переопределяющий при создании урока поле user на текущего авторизованного пользователя."""
+        serializer.save(user=self.request.user)
+
 
 class HabitsUpdateAPIView(UpdateAPIView):
     """Generic редактирования привычки."""

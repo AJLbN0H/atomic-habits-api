@@ -56,7 +56,7 @@ class HabitsRetrieveAPIView(RetrieveAPIView):
 
 
 class HabitsDestroyAPIView(DestroyAPIView):
-    """Generic удаленияпривычек пользователя."""
+    """Generic удаления привычек пользователя."""
 
     serializer_class = HabitsSerializer
     queryset = Habit.objects.all()

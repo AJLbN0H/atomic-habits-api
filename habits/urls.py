@@ -7,8 +7,8 @@ from habits.views import UserHabitsListAPIView, PublicHabitsListAPIView, HabitsC
 app_name = "habits"
 
 urlpatterns = [
-    path('user/', PublicHabitsListAPIView.as_view(), name='habits_list'),
-    path('public/', UserHabitsListAPIView.as_view(), name='habits_public_list'),
+    path('user/', UserHabitsListAPIView.as_view(), name='habits_user_list'),
+    path('public/', PublicHabitsListAPIView.as_view(), name='habits_public_list'),
     path('create/', HabitsCreateAPIView.as_view(), name='habits_create'),
     path('update/<int:pk>/', HabitsUpdateAPIView.as_view(), name='habits_update'),
     path('detail/<int:pk>/', HabitsRetrieveAPIView.as_view(), name='habits_detail'),

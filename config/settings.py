@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "habits",
     "users",
-    "drf_yasg"
+    "drf_yasg",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -153,4 +154,21 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-API_TELEGRAM_BOT_FATHER = os.getenv('API_TELEGRAM_BOT_FATHER')
+CELERY_BEAT_SCHEDULE = {
+    "task-name": {
+        "task": "habits.tasks.send_habit_message",
+        "schedule": timedelta(seconds=10),
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+API_TELEGRAM_BOT_FATHER = os.getenv("API_TELEGRAM_BOT_FATHER")

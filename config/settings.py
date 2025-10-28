@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "users",
     "drf_yasg",
     "django_celery_beat",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -170,5 +172,14 @@ CACHES = {
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "https://api.telegram.org/bot{API_TELEGRAM_BOT_FATHER}/sendMessage"
+]
 
 API_TELEGRAM_BOT_FATHER = os.getenv("API_TELEGRAM_BOT_FATHER")

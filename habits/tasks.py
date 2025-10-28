@@ -9,6 +9,8 @@ from habits.models import Habit
 
 @shared_task
 def send_habit_message():
+    """Переодическая задача, которая при наступлении даты, которую указал пользователь отправляет ему сообщение в телеграмм боте."""
+
     url = f"https://api.telegram.org/bot{API_TELEGRAM_BOT_FATHER}/sendMessage"
 
     habits = Habit.objects.all()
@@ -19,7 +21,7 @@ def send_habit_message():
             if habit_time == datetime_now:
                 params = {
                     "chat_id": habit.chat_id,
-                    "text": f"Я буду '{habit.action}' в '{habit.time}' в '{habit.place}', за {habit.time_to_complete}",
+                    "text": f"Я буду '{habit.action}' в '{habit.time}' в '{habit.place}', за {habit.time_to_complete} секунд",
                 }
 
                 try:

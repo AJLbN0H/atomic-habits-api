@@ -174,12 +174,12 @@ CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',
+    "http://localhost:8000",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
-    "https://api.telegram.org/bot{API_TELEGRAM_BOT_FATHER}/sendMessage"
+    "https://api.telegram.org/bot{API_TELEGRAM_BOT_FATHER}/sendMessage",
 ]
 
 API_TELEGRAM_BOT_FATHER = os.getenv("API_TELEGRAM_BOT_FATHER")

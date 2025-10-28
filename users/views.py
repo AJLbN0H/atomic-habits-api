@@ -15,7 +15,7 @@ class UserCreateApiView(CreateAPIView):
     permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
-        """Метод активации пользователя при создании его создании."""
+        """Метод активации пользователя при его создании."""
 
         user = serializer.save(is_active=True)
         user.set_password(user.password)

@@ -11,7 +11,6 @@ from habits.models import Habit
 from habits.paginations import CustomPagination
 from habits.permissions import IsOwner
 from habits.serializers import HabitsSerializer
-from habits.tasks import send_habit_message
 
 
 class UserHabitsListAPIView(ListAPIView):
@@ -22,7 +21,7 @@ class UserHabitsListAPIView(ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        send_habit_message()
+        """Выводит только привычки пользователя."""
         return Habit.objects.filter(user_id=self.request.user)
 
 
@@ -33,6 +32,7 @@ class PublicHabitsListAPIView(ListAPIView):
     queryset = Habit.objects.all()
 
     def get_queryset(self):
+        """Выводит только привычки со статусом публикации True"""
         return Habit.objects.filter(publication_sign=True)
 
 

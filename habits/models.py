@@ -31,7 +31,7 @@ class Habit(models.Model):
         default=False,
     )
     associated_habit = models.ForeignKey(
-        'self',
+        "self",
         on_delete=models.CASCADE,
         verbose_name="Связанная привычка",
         help_text="укажите приятную привычку",
@@ -56,10 +56,16 @@ class Habit(models.Model):
     publication_sign = models.BooleanField(
         verbose_name="Признак публичности", help_text="опубликовать?", default=False
     )
-    chat_id = models.IntegerField(verbose_name='Впишите свой chat_id телеграмма', help_text='Это нужно для работоспособности отправки уведомлений. Получить его можно перейдя в бота @userinfobot и отправив /start', blank=True, null=True)
+    chat_id = models.CharField(
+        max_length=10,
+        verbose_name="Впишите свой chat_id телеграмма",
+        help_text="Это нужно для работоспособности отправки уведомлений. Получить его можно перейдя в бота @userinfobot и отправив /start",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
-        return f"Пользователь: {self.user}, Действие: {self.action}"
+        return f"{self.user}"
 
     class Meta:
         verbose_name = "Привычка"

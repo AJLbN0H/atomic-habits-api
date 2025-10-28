@@ -1,10 +1,17 @@
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 
 from habits.models import Habit
 from habits.paginations import CustomPagination
 from habits.permissions import IsOwner
 from habits.serializers import HabitsSerializer
+from habits.tasks import send_habit_message
 
 
 class UserHabitsListAPIView(ListAPIView):
@@ -15,6 +22,7 @@ class UserHabitsListAPIView(ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
+        send_habit_message()
         return Habit.objects.filter(user_id=self.request.user)
 
 

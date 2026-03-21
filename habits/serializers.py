@@ -32,7 +32,7 @@ class HabitsSerializer(ModelSerializer):
                 "Нельзя выбрать одновременно вознаграждение и приятную привычку"
             )
 
-        if time_to_complete > 120:
+        if time_to_complete is not None and time_to_complete > 120:
             raise serializers.ValidationError(
                 "Время выполнения должно быть не больше 120 секунд"
             )
@@ -50,7 +50,7 @@ class HabitsSerializer(ModelSerializer):
                 )
 
         if periodicity:
-            if periodicity < 1:
+            if periodicity > 7:
                 raise serializers.ValidationError(
                     "Нельзя выполнять привычку реже, чем 1 раз в 7 дней"
                 )

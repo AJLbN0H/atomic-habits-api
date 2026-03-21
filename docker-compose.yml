@@ -2,14 +2,24 @@ services:
   db:
     image: postgres:15
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
@@ -19,34 +29,79 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
-      - SECRET_KEY=django-insecure-habits-key
-      - DEBUG=True
-      - NAME=postgres
-      - USER=postgres
-      - PASSWORD=postgres
-      - HOST=db
-      - PORT=5432
-      - CELERY_BROKER_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-local-dev-key-change-me}
+      - DEBUG=${DEBUG:-True}
+      - NAME=${NAME:-postgres}
+      - USER=${USER:-postgres}
+      - PASSWORD=${PASSWORD:-postgres}
+      - HOST=${HOST:-db}
+      - PORT=${PORT:-5432}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
 
   celery:
     build: .
-    # Запускаем через модуль python, чтобы не было ошибок с путями
     command: python -m celery -A config worker -l info
     volumes:
       - .:/app
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
-      - NAME=postgres
-      - USER=postgres
-      - PASSWORD=postgres
-      - HOST=db
-      - PORT=5432
-      - CELERY_BROKER_URL=redis://redis:6379/0
+      - NAME=${NAME:-postgres}
+      - USER=${USER:-postgres}
+      - PASSWORD=${PASSWORD:-postgres}
+      - HOST=${HOST:-db}
+      - PORT=${PORT:-5432}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+
+  celery-beat:
+    build: .
+    command: python -m celery -A config beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NAME=${NAME:-postgres}
+      - USER=${USER:-postgres}
+      - PASSWORD=${PASSWORD:-postgres}
+      - HOST=${HOST:-db}
+      - PORT=${PORT:-5432}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+
+  test:
+    build: .
+    command: python manage.py test
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-local-dev-key-change-me}
+      - DEBUG=False
+      - NAME=${NAME:-postgres}
+      - USER=${USER:-postgres}
+      - PASSWORD=${PASSWORD:-postgres}
+      - HOST=${HOST:-db}
+      - PORT=${PORT:-5432}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
 
 volumes:
   postgres_data:

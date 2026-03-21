@@ -30,6 +30,7 @@ class PublicHabitsListAPIView(ListAPIView):
 
     serializer_class = HabitsSerializer
     queryset = Habit.objects.all()
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         """Выводит только привычки со статусом публикации True"""

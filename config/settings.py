@@ -90,7 +90,7 @@ DATABASES = {
         'NAME': os.getenv('NAME', 'postgres'),
         'USER': os.getenv('USER', 'postgres'),
         'PASSWORD': os.getenv('PASSWORD', 'postgres'),
-        'HOST': os.getenv('HOST', 'db'),  # <--- Ключевой момент!
+        'HOST': os.getenv('HOST', '127.0.0.1'),
         'PORT': os.getenv('PORT', '5432'),
     }
 }
@@ -165,12 +165,12 @@ CELERY_BEAT_SCHEDULE = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": os.getenv("CACHE_LOCATION", "redis://127.0.0.1:6379/1"),
     }
 }
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",

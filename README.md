@@ -40,7 +40,13 @@
 
     docker-compose up --build
 
-4. Локальный запуск (требуется установленный Redis):
+   API будет доступен на `http://localhost:8000`.
+
+4. Запуск тестов в Docker:
+
+    docker compose run --rm test
+
+5. Локальный запуск (требуется установленный Redis):
 
     poetry install
     python manage.py migrate

@@ -1,62 +1,102 @@
-# Atomic Habits: Backend для трекера привычек
+# Atomic Habits API
 
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+Backend for a habit tracker inspired by *Atomic Habits*. It exposes a REST API for creating and managing habits, with validation rules, optional Telegram reminders (Celery), and public habit listings.
+
+![Python](https://img.shields.io/badge/python-3.13+-blue.svg)
 ![Django](https://img.shields.io/badge/django-5.2+-green.svg)
 ![Celery](https://img.shields.io/badge/celery--beat-enabled-orange.svg)
 ![Redis](https://img.shields.io/badge/redis-broker-red.svg)
+[![Tests](https://github.com/AJLbN0H/atomic-habits-api/actions/workflows/tests.yml/badge.svg)](https://github.com/AJLbN0H/atomic-habits-api/actions/workflows/tests.yml)
 
-**Atomic Habits API** — это бэкенд-сервис для создания и контроля полезных привычек. Проект вдохновлен книгой "Атомные привычки" и включает в себя сложную бизнес-логику валидации, планирования задач и интеграции с внешними сервисами.
+## Features
 
-## Ключевой функционал
-* **Управление привычками:** CRUD операций с разделением на "привычки" и "вознаграждения".
-* **Умная валидация:** Кастомные валидаторы на уровне сериализаторов (исключение конфликтов между вознаграждением и связанной привычкой).
-* **Автоматические напоминания:** Использование Celery Beat для ежедневной проверки и отправки уведомлений пользователям.
-* **Публичный доступ:** Механизм публикации привычек для обмена опытом внутри сообщества.
-* **Настройка периодичности:** Поддержка гибких графиков выполнения (ежедневно, раз в неделю и т.д.).
+- **Habits CRUD** — create, read, update, and delete habits (including “pleasant” habits and rewards).
+- **Serializer validation** — e.g. cannot combine reward and associated pleasant habit; time cap; periodicity limits; `chat_id` format.
+- **Reminders** — Celery Beat can run periodic tasks (e.g. Telegram notifications).
+- **Public habits** — habits can be marked public for sharing.
+- **Auth** — JWT via `djangorestframework-simplejwt`.
 
-## Технологический стек
-* **Framework:** Django Rest Framework (DRF).
-* **Task Scheduling:** Celery + Celery Beat.
-* **Message Broker:** Redis.
-* **Database:** PostgreSQL.
-* **Auth:** JWT Authentication.
+## Stack
 
-## Архитектура решения
-Проект построен на принципах чистой архитектуры:
-* habits/: Основная логика, модели и кастомные валидаторы.
-* users/: Управление аккаунтами и доступами.
-* services/: Логика интеграции (например, отправка сообщений в Telegram).
+| Layer        | Technology                          |
+| ------------ | ----------------------------------- |
+| API          | Django REST Framework               |
+| DB           | PostgreSQL                          |
+| Tasks        | Celery + django-celery-beat         |
+| Broker/cache | Redis                               |
+| Docs (optional) | drf-yasg (Swagger/OpenAPI)       |
 
-## Установка и запуск
+## Project layout
 
-1. Клонируйте репозиторий:
+- `habits/` — models, serializers, views, tasks, permissions.
+- `users/` — custom user model and auth-related endpoints.
+- `config/` — Django settings, URLs, Celery app.
 
-    git clone https://github.com/AJLbN0H/atomic-habits-api.git
+## Quick start (Docker)
 
-2. Настройте файл .env:
-Укажите параметры PostgreSQL, Redis и токен вашего Telegram-бота.
+1. Clone the repo:
 
-3. Запустите инфраструктуру через Docker:
+   ```bash
+   git clone https://github.com/AJLbN0H/atomic-habits-api.git
+   cd atomic-habits-api
+   ```
 
-    docker-compose up --build
+2. Copy environment template and adjust secrets:
 
-   API будет доступен на `http://localhost:8000`.
+   ```bash
+   cp .env.sample .env
+   ```
 
-4. Запуск тестов в Docker:
+   Set at least `SECRET_KEY`, database credentials if you change them, and `API_TELEGRAM_BOT_FATHER` if you use Telegram.
 
-    docker compose run --rm test
+3. Start the stack:
 
-5. Локальный запуск (требуется установленный Redis):
+   ```bash
+   docker compose up --build
+   ```
 
-    poetry install
-    python manage.py migrate
-    python manage.py runserver
+   API: **http://localhost:8000** (migrations run in the `app` service command).
 
-## Команды для запуска фоновых процессов:
-* Запуск воркера Celery: `celery -A config worker -l info`
-* Запуск планировщика Beat: `celery -A config beat -l info`
+4. Run tests inside Docker:
+
+   ```bash
+   docker compose run --rm test
+   ```
+
+> **Secrets:** do not commit real keys. Use `.env` (ignored by git) or your host/CI secret store. `docker-compose.yml` reads variables from the environment / `.env` file in the project root.
+
+## Local run (without Docker)
+
+You need **PostgreSQL** and **Redis** running locally (or tunneled). Match `NAME`, `USER`, `PASSWORD`, `HOST`, `PORT`, and Redis URLs in `.env` to your setup.
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+# source .venv/bin/activate  # Linux/macOS
+
+pip install -r requirements.txt
+cp .env.sample .env   # then edit HOST=127.0.0.1 etc.
+
+python manage.py migrate
+python manage.py runserver
+```
+
+Optional — if you use **Poetry**, install from `pyproject.toml` / lockfile (note: Docker and CI use `requirements.txt` as the canonical dependency list for parity).
+
+## Celery (local)
+
+```bash
+celery -A config worker -l info
+celery -A config beat -l info
+```
+
+## CI
+
+GitHub Actions runs on pushes/PRs to `main` / `develop`: **Python 3.13**, **PostgreSQL 15**, **Redis 7**, then `pip install -r requirements.txt` and `python manage.py test`.  
+Workflow file: [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
 
 ## Roadmap
-* Покрытие кода интеграционными тестами.
-* Интеграция с Docker Secrets для безопасного хранения API-ключей.
-* Добавление системы "уровней" и геймификации для пользователей.
+
+- More integration tests and coverage.
+- Docker Secrets / external secret manager for production keys.
+- Gamification (levels, streaks, etc.).
